@@ -12,6 +12,7 @@ android {
 //        versionName = "1.0"
 
         testInstrumentationRunner = "android.support.test.runner.AndroidJUnitRunner"
+
     }
 
     buildTypes {
@@ -36,10 +37,11 @@ android {
         consumerProguardFiles("proguard-rules.pro")
 
 //        buildConfigField("String", "VERSION_NAME", "\"${libraryVersionName}\"")
-//        buildConfigField("int", "VERSION_CODE", libraryVersionCode.toString())
+//        buildConfigField("int", "VERSION_CODE", libraryVersionCode.toString())+
+        android.buildFeatures.buildConfig = true
     }
 
-//    flavorDimensions("default")
+    flavorDimensions("default")
     productFlavors {
         // Flavor when building Unity Plugin as a standalone product
         create("standalone") {
