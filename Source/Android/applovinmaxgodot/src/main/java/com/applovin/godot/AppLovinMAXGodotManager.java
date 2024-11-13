@@ -897,13 +897,13 @@ public class AppLovinMAXGodotManager
         } );
     }
 
-    @Override
+//    @Override
     public void onRewardedVideoCompleted(final MaxAd ad)
     {
         // This event is not forwarded
     }
 
-    @Override
+//    @Override
     public void onRewardedVideoStarted(final MaxAd ad)
     {
         // This event is not forwarded

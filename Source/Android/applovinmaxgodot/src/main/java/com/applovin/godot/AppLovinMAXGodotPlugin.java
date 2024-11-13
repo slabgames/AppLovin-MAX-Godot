@@ -262,53 +262,53 @@ public class AppLovinMAXGodotPlugin
             userIdToSet = null;
         }
 
-        if ( !TextUtils.isEmpty( userSegmentNameToSet ) )
-        {
-            sdk.getUserSegment().setName( userSegmentNameToSet );
-            userSegmentNameToSet = null;
-        }
-
-        if ( targetingYearOfBirth != null )
-        {
-            sdk.getTargetingData().setYearOfBirth( targetingYearOfBirth <= 0 ? null : targetingYearOfBirth );
-            targetingYearOfBirth = null;
-        }
-
-        if ( targetingGender != null )
-        {
-            sdk.getTargetingData().setGender( getAppLovinGender( targetingGender ) );
-            targetingGender = null;
-        }
-
-        if ( targetingMaximumAdContentRating != null )
-        {
-            sdk.getTargetingData().setMaximumAdContentRating( getAppLovinAdContentRating( targetingMaximumAdContentRating ) );
-            targetingMaximumAdContentRating = null;
-        }
-
-        if ( targetingEmail != null )
-        {
-            sdk.getTargetingData().setEmail( targetingEmail );
-            targetingEmail = null;
-        }
-
-        if ( targetingPhoneNumber != null )
-        {
-            sdk.getTargetingData().setPhoneNumber( targetingPhoneNumber );
-            targetingPhoneNumber = null;
-        }
-
-        if ( targetingKeywords != null )
-        {
-            sdk.getTargetingData().setKeywords( targetingKeywords );
-            targetingKeywords = null;
-        }
-
-        if ( targetingInterests != null )
-        {
-            sdk.getTargetingData().setInterests( targetingInterests );
-            targetingInterests = null;
-        }
+//        if ( !TextUtils.isEmpty( userSegmentNameToSet ) )
+//        {
+//            sdk.getUserSegment().setName( userSegmentNameToSet );
+//            userSegmentNameToSet = null;
+//        }
+//
+//        if ( targetingYearOfBirth != null )
+//        {
+//            sdk.getTargetingData().setYearOfBirth( targetingYearOfBirth <= 0 ? null : targetingYearOfBirth );
+//            targetingYearOfBirth = null;
+//        }
+//
+//        if ( targetingGender != null )
+//        {
+//            sdk.getTargetingData().setGender( getAppLovinGender( targetingGender ) );
+//            targetingGender = null;
+//        }
+//
+//        if ( targetingMaximumAdContentRating != null )
+//        {
+//            sdk.getTargetingData().setMaximumAdContentRating( getAppLovinAdContentRating( targetingMaximumAdContentRating ) );
+//            targetingMaximumAdContentRating = null;
+//        }
+//
+//        if ( targetingEmail != null )
+//        {
+//            sdk.getTargetingData().setEmail( targetingEmail );
+//            targetingEmail = null;
+//        }
+//
+//        if ( targetingPhoneNumber != null )
+//        {
+//            sdk.getTargetingData().setPhoneNumber( targetingPhoneNumber );
+//            targetingPhoneNumber = null;
+//        }
+//
+//        if ( targetingKeywords != null )
+//        {
+//            sdk.getTargetingData().setKeywords( targetingKeywords );
+//            targetingKeywords = null;
+//        }
+//
+//        if ( targetingInterests != null )
+//        {
+//            sdk.getTargetingData().setInterests( targetingInterests );
+//            targetingInterests = null;
+//        }
 
         setPendingExtraParametersIfNeeded( sdk.getSettings() );
     }
@@ -413,20 +413,21 @@ public class AppLovinMAXGodotPlugin
     @UsedByGodot
     public void set_is_age_restricted_user(boolean isAgeRestrictedUser)
     {
-        AppLovinPrivacySettings.setIsAgeRestrictedUser( isAgeRestrictedUser, getCurrentActivity() );
+//        AppLovinPrivacySettings.setIsAgeRestrictedUser( isAgeRestrictedUser, getCurrentActivity() );
     }
 
     @UsedByGodot
     public boolean is_age_restricted_user()
     {
-        return AppLovinPrivacySettings.isAgeRestrictedUser( getCurrentActivity() );
+//        return AppLovinPrivacySettings.isAgeRestrictedUser( getCurrentActivity() );
+        return false;
     }
 
     @UsedByGodot
     public boolean is_age_restricted_user_set()
     {
-        return AppLovinPrivacySettings.isAgeRestrictedUserSet( getCurrentActivity() );
-
+//        return AppLovinPrivacySettings.isAgeRestrictedUserSet( getCurrentActivity() );
+        return false;
     }
 
     @UsedByGodot
@@ -794,7 +795,7 @@ public class AppLovinMAXGodotPlugin
     {
         if ( sdk != null )
         {
-            sdk.getUserSegment().setName( value );
+//            sdk.getUserSegment().setName( value );
         }
         else
         {
@@ -811,7 +812,7 @@ public class AppLovinMAXGodotPlugin
             return;
         }
 
-        sdk.getTargetingData().setYearOfBirth( yearOfBirth <= 0 ? null : yearOfBirth );
+//        sdk.getTargetingData().setYearOfBirth( yearOfBirth <= 0 ? null : yearOfBirth );
     }
 
     @UsedByGodot
@@ -823,7 +824,7 @@ public class AppLovinMAXGodotPlugin
             return;
         }
 
-        sdk.getTargetingData().setGender( getAppLovinGender( gender ) );
+//        sdk.getTargetingData().setGender( getAppLovinGender( gender ) );
     }
 
     @UsedByGodot
@@ -835,7 +836,7 @@ public class AppLovinMAXGodotPlugin
             return;
         }
 
-        sdk.getTargetingData().setMaximumAdContentRating( getAppLovinAdContentRating( maximumAdContentRating ) );
+//        sdk.getTargetingData().setMaximumAdContentRating( getAppLovinAdContentRating( maximumAdContentRating ) );
     }
 
     @UsedByGodot
@@ -847,7 +848,7 @@ public class AppLovinMAXGodotPlugin
             return;
         }
 
-        sdk.getTargetingData().setEmail( email );
+//        sdk.getTargetingData().setEmail( email );
     }
 
     @UsedByGodot
@@ -859,7 +860,7 @@ public class AppLovinMAXGodotPlugin
             return;
         }
 
-        sdk.getTargetingData().setPhoneNumber( phoneNumber );
+//        sdk.getTargetingData().setPhoneNumber( phoneNumber );
     }
 
     @UsedByGodot
@@ -872,7 +873,7 @@ public class AppLovinMAXGodotPlugin
             return;
         }
 
-        sdk.getTargetingData().setKeywords( keywordsList );
+//        sdk.getTargetingData().setKeywords( keywordsList );
     }
 
     @UsedByGodot
@@ -885,7 +886,7 @@ public class AppLovinMAXGodotPlugin
             return;
         }
 
-        sdk.getTargetingData().setInterests( interestsList );
+//        sdk.getTargetingData().setInterests( interestsList );
     }
 
     @UsedByGodot
@@ -903,7 +904,7 @@ public class AppLovinMAXGodotPlugin
             return;
         }
 
-        sdk.getTargetingData().clearAll();
+//        sdk.getTargetingData().clearAll();
     }
 
     @UsedByGodot
@@ -990,7 +991,7 @@ public class AppLovinMAXGodotPlugin
     {
         if ( sdk != null )
         {
-            sdk.getSettings().setLocationCollectionEnabled( enabled );
+//            sdk.getSettings().setLocationCollectionEnabled( enabled );
             locationCollectionEnabled = null;
         }
         else

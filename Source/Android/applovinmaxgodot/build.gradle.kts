@@ -76,13 +76,13 @@ dependencies {
         compileOnly(project(":Android-SDK"))
     } else {
 //        compileOnly("com.applovin:applovin-sdk:+")
-        compileOnly(files("./libs/applovin-sdk-13.0.1.aar"))
+//        compileOnly(files("./libs/applovin-sdk-13.0.1.aar"))
     }
 
     // Godot Engine
     // compileOnly("org.godotengine.godot:godot-lib:+@aar")
     compileOnly(files("./libs/godot-lib.3.6.stable.release.aar"))
-    compileOnly(files("./libs/applovin-sdk-13.0.1-sources"))
+//    compileOnly(files("./libs/applovin-sdk-13.0.1-sources"))
 }
 
 
