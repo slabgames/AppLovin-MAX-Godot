@@ -8,6 +8,10 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        maven { url = uri("https://artifacts.applovin.com/android") }
+    }
+    dependencies {
+        classpath ("com.applovin.quality:AppLovinQualityServiceGradlePlugin:+")
     }
 }
 

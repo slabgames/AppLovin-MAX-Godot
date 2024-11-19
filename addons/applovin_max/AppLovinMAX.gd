@@ -7,43 +7,113 @@
 ##
 
 ## AppLovin MAX Godot Plugin API
-class_name AppLovinMAX
 
+#class_name AppLovinMAX
+extends Node
 ## Returns the plugin version
-static var version: String = "1.0.3"
+var version: String = "1.0.3"
 ## This class allows you to provide user or app data that will improve how we target ads.
-static var targeting_data: TargetingData = TargetingData.new()
+var targeting_data: TargetingData = TargetingData.new()
 ## User segments allow us to serve ads using custom-defined rules based on which segment the user is in. For now, we only support a custom string 32 alphanumeric characters or less as the user segment.
-static var user_segment: UserSegment = UserSegment.new()
+var user_segment: UserSegment = UserSegment.new()
 
-static var _banner_ad_listener: AdEventListener
-static var _mrec_ad_listener: AdEventListener
-static var _interstitial_ad_listener: InterstitialAdEventListener
-static var _appopen_ad_listener: AppOpenAdEventListener
-static var _rewarded_ad_listener: RewardedAdEventListener
+var _banner_ad_listener: AdEventListener
+var _mrec_ad_listener: AdEventListener
+var _interstitial_ad_listener: InterstitialAdEventListener
+var _appopen_ad_listener: AppOpenAdEventListener
+var _rewarded_ad_listener: RewardedAdEventListener
+var _init_listener: InitializationListener = null
 
-static var _plugin = _get_plugin("AppLovinMAXGodotPlugin")
-	
+var _plugin = _get_plugin("AppLovinMAXGodotPlugin")
+
+signal on_sdk_init
+
+signal on_banner_clicked
+signal on_banner_loaded
+signal on_banner_load_failed
+signal on_banner_revenue_paid
+signal on_banner_expanded
+signal on_banner_collapsed
+
+signal on_mrec_clicked
+signal on_mrec_loaded
+signal on_mrec_load_failed
+signal on_mrec_revenue_paid
+signal on_mrec_expanded
+signal on_mrec_collapsed
+
+signal on_appopen_clicked
+signal on_appopen_loaded
+signal on_appopen_load_failed
+signal on_appopen_displayed
+signal on_appopen_display_failed
+signal on_appopen_hidden
+signal on_appopen_revenue_paid
+signal on_appopen_revenue_expanded
+signal on_appopen_revenue_collapsed
+
+signal on_inter_clicked
+signal on_inter_loaded
+signal on_inter_load_failed
+signal on_inter_displayed
+signal on_inter_display_failed
+signal on_inter_hidden
+signal on_inter_revenue_expanded
+signal on_inter_revenue_collapsed
+signal on_inter_revenue_paid
+
+signal on_rewarded_loaded
+signal on_rewarded_clicked
+signal on_rewarded_load_failed
+signal on_rewarded_displayed
+signal on_rewarded_display_failed
+signal on_rewarded_hidden
+signal on_rewarded_revenue_expanded
+signal on_rewarded_revenue_collapsed
+signal on_rewarded_revenue_paid
+signal on_get_rewarded
 	
 class InitializationListener:
-	var on_sdk_initialized: Callable = func(sdk_configuration : AppLovinMAX.SdkConfiguration): pass
+	func on_sdk_initialized(sdk_configuration : SdkConfiguration):
+		pass
 	
 	
 class AdEventListener:
-	var on_ad_loaded: Callable = func(ad_unit_identifier: String, ad_info: AppLovinMAX.AdInfo): pass
-	var on_ad_load_failed: Callable = func(ad_unit_identifier: String, errorInfo: AppLovinMAX.ErrorInfo): pass
-	var on_ad_clicked: Callable = func(ad_unit_identifier: String, ad_info: AppLovinMAX.AdInfo): pass
-	var on_ad_revenue_paid: Callable = func(ad_unit_identifier: String, ad_info: AppLovinMAX.AdInfo): pass
-	var on_ad_expanded: Callable = func(ad_unit_identifier: String, ad_info: AppLovinMAX.AdInfo): pass
-	var on_ad_collapsed: Callable = func(ad_unit_identifier: String, ad_info: AppLovinMAX.AdInfo): pass
+	func on_ad_loaded(ad_unit_identifier: String, ad_info: Dictionary):
+		print (AdInfo.new(ad_info))
+		pass
+	func on_ad_load_failed(ad_unit_identifier: String, error_info: Dictionary):
+		print (ErrorInfo.new(error_info))
+
+	func on_ad_clicked(ad_unit_identifier: String, ad_info: Dictionary):
+		print (AdInfo.new(ad_info))
+		pass
+
+	func on_ad_revenue_paid(ad_unit_identifier: String, ad_info: Dictionary):
+		print (AdInfo.new(ad_info))
+		pass
+		
+
+	func on_ad_expanded(ad_unit_identifier: String, ad_info: Dictionary):
+		print(AdInfo.new(ad_info))
+
+	func on_ad_collapsed(ad_unit_identifier: String, ad_info: Dictionary):
+		print(AdInfo.new(ad_info))
+
 	
 	
 class FullscreenAdEventListener:
 	extends AdEventListener
 	
-	var on_ad_displayed: Callable = func(ad_unit_identifier: String, ad_info: AppLovinMAX.AdInfo): pass
-	var on_ad_display_failed = func(ad_unit_identifier: String, errorInfo: AppLovinMAX.ErrorInfo, ad_info: AppLovinMAX.AdInfo): pass
-	var on_ad_hidden: Callable = func(ad_unit_identifier: String, ad_info: AppLovinMAX.AdInfo): pass
+	func on_ad_displayed(ad_unit_identifier: String, ad_info: Dictionary):
+		print("Full screen ad displayed. ", AdInfo.new(ad_info))
+		pass
+	func on_ad_display_failed(ad_unit_identifier: String, ad_info: Dictionary):
+		print("Full screen ad display failed. ", AdInfo.new(ad_info))
+	func on_ad_hidden(ad_unit_identifier: String, ad_info: Dictionary):
+		print("Full screen ad hidden. ", AdInfo.new(ad_info))
+		pass
+
 	
 	
 class BannerAdEventListener:
@@ -65,50 +135,62 @@ class AppOpenAdEventListener:
 class RewardedAdEventListener:
 	extends FullscreenAdEventListener
 	
-	var on_ad_received_reward: Callable = func(ad_unit_identifier: String, reward: AppLovinMAX.Reward, ad_info: AppLovinMAX.AdInfo): pass
+	func on_ad_received_reward(ad_unit_identifier: String, reward: Reward, ad_info: Dictionary):
+		emit_signal("on_get_rewarded",ad_unit_identifier,reward.label,reward.amount)
+		print("on ad received reward. ", AdInfo.new(ad_info))
+
+
+
+func _ready():
+	initialize("",InitializationListener.new())
 	
-	
-static func initialize(sdk_key: String, listener: InitializationListener = null, ad_unit_identifiers: Array = Array()) -> void:
+func initialize(sdk_key: String, listener: InitializationListener = null, ad_unit_identifiers: Array = Array()) -> void:
 	if _plugin == null:
 		return
-		
-	_plugin.connect("on_sdk_initialized", func(sdk_configuration: Dictionary):
-		if listener:
-			listener.on_sdk_initialized.call(SdkConfiguration.create(sdk_configuration))
-	)
+	
+	_init_listener = listener
+	_plugin.connect("on_sdk_initialized", self, "on_sdk_initialized")
 		
 	_plugin.initialize(sdk_key, _generate_metadata(), ad_unit_identifiers)
-
 	
-static func is_initialized() -> bool:
+	
+
+func on_sdk_initialized(sdk_configuration: Dictionary):
+	if _init_listener:
+		_init_listener.on_sdk_initialized(SdkConfiguration.create(sdk_configuration))
+	emit_signal("on_sdk_init")
+#	SdkConfiguration.create(sdk_configuration)
+	print("MAX SDK INITIALIZED")
+	
+func is_initialized() -> bool:
 	if _plugin == null:
 		return false
 		
 	return _plugin.is_initialized()
 	
 	
-static func show_mediation_debugger() -> void:
+func show_mediation_debugger() -> void:
 	if _plugin == null:
 		return
 	
 	_plugin.show_mediation_debugger()
 	
 
-static func show_creative_debugger() -> void:
+func show_creative_debugger() -> void:
 	if _plugin == null:
 		return
 	
 	_plugin.show_creative_debugger()
 	
 	
-static func set_user_id(user_id: String) -> void:
+func set_user_id(user_id: String) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.set_user_id(user_id)
 
 
-static func get_sdk_configuration() -> SdkConfiguration:
+func get_sdk_configuration() -> SdkConfiguration:
 	if _plugin == null:
 		return null
 			
@@ -116,7 +198,7 @@ static func get_sdk_configuration() -> SdkConfiguration:
 	return SdkConfiguration.create(configuration);
 
 
-static func get_ad_value(ad_unit_identifier: String, key: String) -> String:
+func get_ad_value(ad_unit_identifier: String, key: String) -> String:
 	if _plugin == null:
 		return ""
 	
@@ -124,14 +206,14 @@ static func get_ad_value(ad_unit_identifier: String, key: String) -> String:
 	return value if value else ""
 
 
-static func is_tablet() -> bool:
+func is_tablet() -> bool:
 	if _plugin == null:
 		return false
 		
 	return _plugin.is_tablet()
 	
 	
-static func is_physical_device() -> bool:
+func is_physical_device() -> bool:
 	if _plugin == null:
 		return false
 		
@@ -140,63 +222,63 @@ static func is_physical_device() -> bool:
 
 ### Privacy ###
 	
-static func set_has_user_consent(has_user_consent: bool) -> void:
+func set_has_user_consent(has_user_consent: bool) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.set_has_user_consent(has_user_consent)
 	
 	
-static func get_has_user_consent() -> bool:
+func get_has_user_consent() -> bool:
 	if _plugin == null:
 		return false
 		
 	return _plugin.get_has_user_consent()
 	
 	
-static func is_user_consent_set() -> bool:
+func is_user_consent_set() -> bool:
 	if _plugin == null:
 		return false
 		
 	return _plugin.is_user_consent_set()
 	
 	
-static func set_is_age_restricted_user(is_age_restricted_user: bool) -> void:
+func set_is_age_restricted_user(is_age_restricted_user: bool) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.set_is_age_restricted_user(is_age_restricted_user)
 	
 	
-static func is_age_restricted_user() -> bool:
+func is_age_restricted_user() -> bool:
 	if _plugin == null:
 		return false
 		
 	return _plugin.is_age_restricted_user()
 	
 	
-static func is_age_restricted_user_set() -> bool:
+func is_age_restricted_user_set() -> bool:
 	if _plugin == null:
 		return false
 		
 	return _plugin.is_age_restricted_user_set()
 	
 	
-static func set_do_not_sell(do_not_sell: bool) -> void:
+func set_do_not_sell(do_not_sell: bool) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.set_do_not_sell(do_not_sell)
 	
 	
-static func get_do_not_sell() -> bool:
+func get_do_not_sell() -> bool:
 	if _plugin == null:
 		return false
 		
 	return _plugin.get_do_not_sell()
 	
 	
-static func is_do_not_sell_set() -> bool:
+func is_do_not_sell_set() -> bool:
 	if _plugin == null:
 		return false
 		
@@ -205,148 +287,148 @@ static func is_do_not_sell_set() -> bool:
 	
 ### Banners ###
 
-static func set_banner_ad_listener(listener: AdEventListener) -> void:
-	_banner_ad_listener = listener
+func set_banner_ad_listener() -> void:
+	_plugin.connect("banner_on_ad_loaded", self, "banner_on_ad_loaded")
+	_plugin.connect("banner_on_ad_load_failed", self, "banner_on_ad_load_failed")
+	_plugin.connect("banner_on_ad_clicked", self,"banner_on_ad_clicked")
+	_plugin.connect("banner_on_ad_revenue_paid", self, "banner_on_ad_revenue_paid")
+	_plugin.connect("banner_on_ad_expanded", self, "banner_on_ad_expanded")
+	_plugin.connect("banner_on_ad_collapsed", self, "banner_on_ad_collapsed")
+
+func banner_on_ad_loaded(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_banner_loaded")
+
+func banner_on_ad_load_failed(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_banner_load_failed")
+
+func banner_on_ad_clicked(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_banner_clicked")
+
+func banner_on_ad_revenue_paid(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_banner_revenue_paid")
 	
-	_plugin.connect("banner_on_ad_loaded", func(ad_unit_identifier: String, ad_info: Dictionary):
-		if _banner_ad_listener:
-			_banner_ad_listener.on_ad_loaded.call(ad_unit_identifier, AdInfo.new(ad_info))
-	)
-	_plugin.connect("banner_on_ad_load_failed", func(ad_unit_identifier: String, error_info: Dictionary):
-		if _banner_ad_listener:
-			_banner_ad_listener.on_ad_load_failed.call(ad_unit_identifier, ErrorInfo.new(error_info))
-	)
-	_plugin.connect("banner_on_ad_clicked", func(ad_unit_identifier: String, ad_info: Dictionary):
-		if _banner_ad_listener:
-			_banner_ad_listener.on_ad_clicked.call(ad_unit_identifier, AdInfo.new(ad_info))
-	)
-	_plugin.connect("banner_on_ad_revenue_paid", func(ad_unit_identifier: String, ad_info: Dictionary):
-		if _banner_ad_listener:
-			_banner_ad_listener.on_ad_revenue_paid.call(ad_unit_identifier, AdInfo.new(ad_info))
-	)
-	_plugin.connect("banner_on_ad_expanded", func(ad_unit_identifier: String, ad_info: Dictionary):
-		if _banner_ad_listener:
-			_banner_ad_listener.on_ad_expanded.call(ad_unit_identifier, AdInfo.new(ad_info))
-	)
-	_plugin.connect("banner_on_ad_collapsed", func(ad_unit_identifier: String, ad_info: Dictionary):
-		if _banner_ad_listener:
-			_banner_ad_listener.on_ad_collapsed.call(ad_unit_identifier, AdInfo.new(ad_info))
-	)
+func banner_on_ad_expanded(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_banner_expanded")
+
+func banner_on_ad_collapsed(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_banner_collapsed")
 
 
-static func create_banner(ad_unit_identifier: String, banner_position: AdViewPosition) -> void:
+func create_banner(ad_unit_identifier: String, banner_position) -> void:
 	if _plugin == null:
 		return
 	
 	_plugin.create_banner(ad_unit_identifier, get_adview_position(banner_position).to_lower())
+	set_banner_ad_listener()
 
 
-static func create_banner_xy(ad_unit_identifier: String, x: float, y: float) -> void:
+func create_banner_xy(ad_unit_identifier: String, x: float, y: float) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.create_banner_xy(ad_unit_identifier, x, y)
 
 
-static func load_banner(ad_unit_identifier: String) -> void:
+func load_banner(ad_unit_identifier: String) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.load_banner(ad_unit_identifier)
 
 
-static func set_banner_placement(ad_unit_identifier: String, placement: String) -> void:
+func set_banner_placement(ad_unit_identifier: String, placement: String) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.set_banner_placement(ad_unit_identifier, placement)
 
 
-static func start_banner_auto_refresh(ad_unit_identifier: String) -> void:
+func start_banner_auto_refresh(ad_unit_identifier: String) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.start_banner_auto_refresh(ad_unit_identifier)
 
 
-static func stop_banner_auto_refresh(ad_unit_identifier: String) -> void:
+func stop_banner_auto_refresh(ad_unit_identifier: String) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.stop_banner_auto_refresh(ad_unit_identifier)
 
 
-static func update_banner_position(ad_unit_identifier: String, banner_position: AdViewPosition) -> void:
+
+func update_banner_position(ad_unit_identifier: String, banner_position) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.update_banner_position(ad_unit_identifier, get_adview_position(banner_position).to_lower())
 
 
-static func update_banner_position_xy(ad_unit_identifier: String, x: float, y: float) -> void:
+func update_banner_position_xy(ad_unit_identifier: String, x: float, y: float) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.update_banner_position_xy(ad_unit_identifier, x, y)
 
 
-static func set_banner_width(ad_unit_identifier: String, width: float) -> void:
+func set_banner_width(ad_unit_identifier: String, width: float) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.set_banner_width(ad_unit_identifier, width)
 
 
-static func show_banner(ad_unit_identifier: String) -> void:
+func show_banner(ad_unit_identifier: String) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.show_banner(ad_unit_identifier)
 
 
-static func destroy_banner(ad_unit_identifier: String) -> void:
+func destroy_banner(ad_unit_identifier: String) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.destroy_banner(ad_unit_identifier)
 
 
-static func hide_banner(ad_unit_identifier: String) -> void:
+func hide_banner(ad_unit_identifier: String) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.hide_banner(ad_unit_identifier)
 
 
-static func set_banner_background_color(ad_unit_identifier: String, hex_color_code_string: String) -> void:
+func set_banner_background_color(ad_unit_identifier: String, hex_color_code_string: String) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.set_banner_background_color(ad_unit_identifier, hex_color_code_string)
 
 
-static func set_banner_extra_parameter(ad_unit_identifier: String, key: String, value: String) -> void:
+func set_banner_extra_parameter(ad_unit_identifier: String, key: String, value: String) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.set_banner_extra_parameter(ad_unit_identifier, key, value)
 
 
-static func set_banner_local_extra_parameter(ad_unit_identifier: String, key: String, value: Object) -> void:
+func set_banner_local_extra_parameter(ad_unit_identifier: String, key: String, value: Object) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.set_banner_local_extra_parameter(ad_unit_identifier, key, value)
 
 
-static func set_banner_custom_data(ad_unit_identifier: String, custom_data: String) -> void:
+func set_banner_custom_data(ad_unit_identifier: String, custom_data: String) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.set_banner_custom_data(ad_unit_identifier, custom_data)
 
 
-static func get_adaptive_banner_height(width: float) -> float:
+func get_adaptive_banner_height(width: float) -> float:
 	if _plugin == null:
 		return 0.0
 		
@@ -355,127 +437,127 @@ static func get_adaptive_banner_height(width: float) -> float:
 
 ### MREC ###
 
-static func set_mrec_ad_listener(listener: AdEventListener) -> void:
-	_mrec_ad_listener = listener
-	
-	_plugin.connect("mrec_on_ad_loaded", func(ad_unit_identifier: String, ad_info: Dictionary):
-		if _mrec_ad_listener:
-			_mrec_ad_listener.on_ad_loaded.call(ad_unit_identifier, AdInfo.new(ad_info))
-	)
-	_plugin.connect("mrec_on_ad_load_failed", func(ad_unit_identifier: String, error_info: Dictionary):
-		if _mrec_ad_listener:
-			_mrec_ad_listener.on_ad_load_failed.call(ad_unit_identifier, ErrorInfo.new(error_info))
-	)
-	_plugin.connect("mrec_on_ad_clicked", func(ad_unit_identifier: String, ad_info: Dictionary):
-		if _mrec_ad_listener:
-			_mrec_ad_listener.on_ad_clicked.call(ad_unit_identifier, AdInfo.new(ad_info))
-	)
-	_plugin.connect("mrec_on_ad_revenue_paid", func(ad_unit_identifier: String, ad_info: Dictionary):
-		if _mrec_ad_listener:
-			_mrec_ad_listener.on_ad_revenue_paid.call(ad_unit_identifier, AdInfo.new(ad_info))
-	)
-	_plugin.connect("mrec_on_ad_expanded", func(ad_unit_identifier: String, ad_info: Dictionary):
-		if _mrec_ad_listener:
-			_mrec_ad_listener.on_ad_expanded.call(ad_unit_identifier, AdInfo.new(ad_info))
-	)
-	_plugin.connect("mrec_on_ad_collapsed", func(ad_unit_identifier: String, ad_info: Dictionary):
-		if _mrec_ad_listener:
-			_mrec_ad_listener.on_ad_collapsed.call(ad_unit_identifier, AdInfo.new(ad_info))
-	)
+func set_mrec_ad_listener() -> void:
+	_plugin.connect("mrec_on_ad_loaded", self, "mrec_on_ad_loaded")
+	_plugin.connect("mrec_on_ad_load_failed", self, "mrec_on_ad_load_failed")
+	_plugin.connect("mrec_on_ad_clicked", self, "mrec_on_ad_clicked")
+	_plugin.connect("mrec_on_ad_revenue_paid",self, "mrec_on_ad_revenue_paid")
+	_plugin.connect("mrec_on_ad_expanded", self, "mrec_on_ad_expanded")
+	_plugin.connect("mrec_on_ad_collapsed", self, "mrec_on_ad_collapsed")
 	
 
-static func create_mrec(ad_unit_identifier: String, mrec_position: AdViewPosition) -> void:
+func mrec_on_ad_loaded(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_mrec_loaded")
+
+func mrec_on_ad_load_failed(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_mrec_load_failed")
+
+func mrec_on_ad_clicked(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_mrec_clicked")
+
+func mrec_on_ad_revenue_paid(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_mrec_revenue_paid")
+	
+func mrec_on_ad_expanded(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_mrec_expanded")
+
+func mrec_on_ad_collapsed(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_mrec_collapsed")
+
+func create_mrec(ad_unit_identifier: String, mrec_position) -> void:
 	if _plugin == null:
 		return
-		
+	
 	_plugin.create_mrec(ad_unit_identifier, get_adview_position(mrec_position).to_lower())
+	set_mrec_ad_listener()
 
 
-static func create_mrec_xy(ad_unit_identifier: String, x: float, y: float) -> void:
+func create_mrec_xy(ad_unit_identifier: String, x: float, y: float) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.create_mrec_xy(ad_unit_identifier, x, y)
 
 
-static func load_mrec(ad_unit_identifier: String) -> void:
+func load_mrec(ad_unit_identifier: String) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.load_mrec(ad_unit_identifier)
 
 
-static func set_mrec_placement(ad_unit_identifier: String, placement: String) -> void:
+func set_mrec_placement(ad_unit_identifier: String, placement: String) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.set_mrec_placement(ad_unit_identifier, placement)
 
 
-static func start_mrec_auto_refresh(ad_unit_identifier: String) -> void:
+func start_mrec_auto_refresh(ad_unit_identifier: String) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.start_mrec_auto_refresh(ad_unit_identifier)
 
 
-static func stop_mrec_auto_refresh(ad_unit_identifier: String) -> void:
+func stop_mrec_auto_refresh(ad_unit_identifier: String) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.stop_mrec_auto_refresh(ad_unit_identifier)
 
 
-static func update_mrec_position(ad_unit_identifier: String, mrec_position: AdViewPosition) -> void:
+
+func update_mrec_position(ad_unit_identifier: String, mrec_position) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.update_mrec_position(ad_unit_identifier, get_adview_position(mrec_position).to_lower())
 
 
-static func update_mrec_position_xy(ad_unit_identifier: String, x: float, y: float) -> void:
+func update_mrec_position_xy(ad_unit_identifier: String, x: float, y: float) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.update_mrec_position_xy(ad_unit_identifier, x, y)
 	
 	
-static func show_mrec(ad_unit_identifier: String) -> void:
+func show_mrec(ad_unit_identifier: String) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.show_mrec(ad_unit_identifier)
 
 
-static func destroy_mrec(ad_unit_identifier: String) -> void:
+func destroy_mrec(ad_unit_identifier: String) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.destroy_mrec(ad_unit_identifier)
 
 
-static func hide_mrec(ad_unit_identifier: String) -> void:
+func hide_mrec(ad_unit_identifier: String) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.hide_mrec(ad_unit_identifier)
 
 
-static func set_mrec_extra_parameter(ad_unit_identifier: String, key: String, value: String) -> void:
+func set_mrec_extra_parameter(ad_unit_identifier: String, key: String, value: String) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.set_mrec_extra_parameter(ad_unit_identifier, key, value)
 
 
-static func set_mrec_local_extra_parameter(ad_unit_identifier: String, key: String, value: Object) -> void:
+func set_mrec_local_extra_parameter(ad_unit_identifier: String, key: String, value: Object) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.set_mrec_local_extra_parameter(ad_unit_identifier, key, value)
 
 
-static func set_mrec_custom_data(ad_unit_identifier: String, custom_data: String) -> void:
+func set_mrec_custom_data(ad_unit_identifier: String, custom_data: String) -> void:
 	if _plugin == null:
 		return
 		
@@ -484,69 +566,68 @@ static func set_mrec_custom_data(ad_unit_identifier: String, custom_data: String
 	
 ### Interstitials ###
 
-static func set_interstitial_ad_listener(listener: InterstitialAdEventListener) -> void:
-	_interstitial_ad_listener = listener
+func set_interstitial_ad_listener() -> void:
+	_plugin.connect("interstitial_on_ad_loaded", self, "interstitial_on_ad_loaded")
+	_plugin.connect("interstitial_on_ad_load_failed", self, "interstitial_on_ad_load_failed")
+	_plugin.connect("interstitial_on_ad_clicked", self, "interstitial_on_ad_clicked")
+	_plugin.connect("interstitial_on_ad_revenue_paid", self, "interstitial_on_ad_revenue_paid")
+	_plugin.connect("interstitial_on_ad_displayed", self, "interstitial_on_ad_displayed")
+	_plugin.connect("interstitial_on_ad_display_failed", self, "interstitial_on_ad_display_failed")
+	_plugin.connect("interstitial_on_ad_hidden", self, "interstitial_on_ad_hidden")
 	
-	_plugin.connect("interstitial_on_ad_loaded", func(ad_unit_identifier: String, ad_info: Dictionary):
-		if _interstitial_ad_listener:
-			print("[TEST] inter loaded, listener")
-			_interstitial_ad_listener.on_ad_loaded.call(ad_unit_identifier, AdInfo.new(ad_info))
-	)
-	_plugin.connect("interstitial_on_ad_load_failed", func(ad_unit_identifier: String, error_info: Dictionary):
-		if _interstitial_ad_listener:
-			_interstitial_ad_listener.on_ad_load_failed.call(ad_unit_identifier, ErrorInfo.new(error_info))
-	)
-	_plugin.connect("interstitial_on_ad_clicked", func(ad_unit_identifier: String, ad_info: Dictionary):
-		if _interstitial_ad_listener:
-			_interstitial_ad_listener.on_ad_clicked.call(ad_unit_identifier, AdInfo.new(ad_info))
-	)
-	_plugin.connect("interstitial_on_ad_revenue_paid", func(ad_unit_identifier: String, ad_info: Dictionary):
-		if _interstitial_ad_listener:
-			_interstitial_ad_listener.on_ad_revenue_paid.call(ad_unit_identifier, AdInfo.new(ad_info))
-	)
-	_plugin.connect("interstitial_on_ad_displayed", func(ad_unit_identifier: String, ad_info: Dictionary):
-		if _interstitial_ad_listener:
-			_interstitial_ad_listener.on_ad_displayed.call(ad_unit_identifier, AdInfo.new(ad_info))
-	)
-	_plugin.connect("interstitial_on_ad_display_failed", func(ad_unit_identifier: String, error_info: Dictionary, ad_info: Dictionary):
-		if _interstitial_ad_listener:
-			_interstitial_ad_listener.on_ad_display_failed.call(ad_unit_identifier, ErrorInfo.new(error_info), AdInfo.new(ad_info));
-	)
-	_plugin.connect("interstitial_on_ad_hidden", func(ad_unit_identifier: String, ad_info: Dictionary):
-		if _interstitial_ad_listener:
-			_interstitial_ad_listener.on_ad_hidden.call(ad_unit_identifier, AdInfo.new(ad_info))
-	)
 	
+func interstitial_on_ad_loaded(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_inter_loaded")
 
-static func load_interstitial(ad_unit_identifier: String) -> void:
+func interstitial_on_ad_load_failed(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_inter_load_failed")
+
+func interstitial_on_ad_clicked(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_inter_clicked")
+
+func interstitial_on_ad_revenue_paid(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_inter_revenue_paid")
+	
+func interstitial_on_ad_displayed(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_inter_displayed")
+
+func interstitial_on_ad_display_failed(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_inter_display_failed")
+
+func interstitial_on_ad_hidden(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_inter_hidden")
+
+func load_interstitial(ad_unit_identifier: String) -> void:
 	if _plugin == null:
 		return
-		
+	
+	set_interstitial_ad_listener()
 	_plugin.load_interstitial(ad_unit_identifier)
 	
 	
-static func is_interstitial_ready(ad_unit_identifier: String) -> bool:
+	
+func is_interstitial_ready(ad_unit_identifier: String) -> bool:
 	if _plugin == null:
 		return false
 		
 	return _plugin.is_interstitial_ready(ad_unit_identifier)
 
 	
-static func show_interstitial(ad_unit_identifier: String, placement: String = "", custom_data: String = "") -> void:
+func show_interstitial(ad_unit_identifier: String, placement: String = "", custom_data: String = "") -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.show_interstitial(ad_unit_identifier, placement, custom_data)
 	
 	
-static func set_interstitial_extra_parameter(ad_unit_identifier: String, key: String, value: String) -> void:
+func set_interstitial_extra_parameter(ad_unit_identifier: String, key: String, value: String) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.set_interstitial_extra_parameter(ad_unit_identifier, key, value)
 
 
-static func set_interstitial_local_extra_parameter(ad_unit_identifier: String, key: String, value: Object) -> void:
+func set_interstitial_local_extra_parameter(ad_unit_identifier: String, key: String, value: Object) -> void:
 	if _plugin == null:
 		return
 		
@@ -555,68 +636,61 @@ static func set_interstitial_local_extra_parameter(ad_unit_identifier: String, k
 	
 ### App Open ###
 
-static func set_appopen_ad_listener(listener: AppOpenAdEventListener) -> void:
-	_appopen_ad_listener = listener
-	
-	_plugin.connect("appopen_on_ad_loaded", func(ad_unit_identifier: String, ad_info: Dictionary):
-		if _appopen_ad_listener:
-			_appopen_ad_listener.on_ad_loaded.call(ad_unit_identifier, AdInfo.new(ad_info))
-	)
-	_plugin.connect("appopen_on_ad_load_failed", func(ad_unit_identifier: String, error_info: Dictionary):
-		if _appopen_ad_listener:
-			_appopen_ad_listener.on_ad_load_failed.call(ad_unit_identifier, ErrorInfo.new(error_info))
-	)
-	_plugin.connect("appopen_on_ad_clicked", func(ad_unit_identifier: String, ad_info: Dictionary):
-		if _appopen_ad_listener:
-			_appopen_ad_listener.on_ad_clicked.call(ad_unit_identifier, AdInfo.new(ad_info))
-	)
-	_plugin.connect("appopen_on_ad_revenue_paid", func(ad_unit_identifier: String, ad_info: Dictionary):
-		if _appopen_ad_listener:
-			_appopen_ad_listener.on_ad_revenue_paid.call(ad_unit_identifier, AdInfo.new(ad_info))
-	)
-	_plugin.connect("appopen_on_ad_displayed", func(ad_unit_identifier: String, ad_info: Dictionary):
-		if _appopen_ad_listener:
-			_appopen_ad_listener.on_ad_displayed.call(ad_unit_identifier, AdInfo.new(ad_info))
-	)
-	_plugin.connect("appopen_on_ad_display_failed", func(ad_unit_identifier: String, error_info: Dictionary, ad_info: Dictionary):
-		if _appopen_ad_listener:
-			_appopen_ad_listener.on_ad_display_failed.call(ad_unit_identifier, ErrorInfo.new(error_info), AdInfo.new(ad_info))
-	)
-	_plugin.connect("appopen_on_ad_hidden", func(ad_unit_identifier: String, ad_info: Dictionary):
-		if _appopen_ad_listener:
-			_appopen_ad_listener.on_ad_hidden.call(ad_unit_identifier, AdInfo.new(ad_info))
-	)
-	
+func set_appopen_ad_listener() -> void:
+	_plugin.connect("appopen_on_ad_loaded", self, "appopen_on_ad_loaded")
+	_plugin.connect("appopen_on_ad_load_failed", self, "appopen_on_ad_load_failed")
+	_plugin.connect("appopen_on_ad_clicked", self, "appopen_on_ad_clicked")
+	_plugin.connect("appopen_on_ad_revenue_paid", self, "appopen_on_ad_revenue_paid")
+	_plugin.connect("appopen_on_ad_displayed", self, "appopen_on_ad_displayed") 
+	_plugin.connect("appopen_on_ad_display_failed",self,"appopen_on_ad_display_failed") 
+	_plugin.connect("appopen_on_ad_hidden", self, "appopen_on_ad_hidden")
 
-static func load_appopen_ad(ad_unit_identifier: String) -> void:
+func appopen_on_ad_loaded(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_appopen_loaded")
+func appopen_on_ad_load_failed(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_appopen_load_failed")
+func appopen_on_ad_clicked(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_appopen_clicked")
+func appopen_on_ad_revenue_paid(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_appopen_revenue_paid")
+func appopen_on_ad_displayed(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_appopen_displayed")
+func appopen_on_ad_display_failed(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_appopen_display_failed")
+func appopen_on_ad_hidden(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_appopen_hidden")
+
+
+func load_appopen_ad(ad_unit_identifier: String) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.load_appopen_ad(ad_unit_identifier)
+	set_appopen_ad_listener()
 	
 	
-static func is_appopen_ad_ready(ad_unit_identifier: String) -> bool:
+func is_appopen_ad_ready(ad_unit_identifier: String) -> bool:
 	if _plugin == null:
 		return false
 		
 	return _plugin.is_appopen_ad_ready(ad_unit_identifier)
 
 	
-static func show_appopen_ad(ad_unit_identifier: String, placement: String = "", custom_data: String = "") -> void:
+func show_appopen_ad(ad_unit_identifier: String, placement: String = "", custom_data: String = "") -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.show_appopen_ad(ad_unit_identifier, placement, custom_data)
 	
 	
-static func set_appopen_ad(ad_unit_identifier: String, key: String = "", value: String = "") -> void:
+func set_appopen_ad(ad_unit_identifier: String, key: String = "", value: String = "") -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.set_appopen_ad_extra_parameter(ad_unit_identifier, key, value)
 
 
-static func set_appopen_ad_local_extra_parameter(ad_unit_identifier: String, key: String, value: Object) -> void:
+func set_appopen_ad_local_extra_parameter(ad_unit_identifier: String, key: String, value: Object) -> void:
 	if _plugin == null:
 		return
 		
@@ -625,72 +699,72 @@ static func set_appopen_ad_local_extra_parameter(ad_unit_identifier: String, key
 	
 ### Rewarded ###
 
-static func set_rewarded_ad_listener(listener: RewardedAdEventListener) -> void:
-	_rewarded_ad_listener = listener
-	
-	_plugin.connect("rewarded_on_ad_loaded", func(ad_unit_identifier: String, ad_info: Dictionary):
-		if _rewarded_ad_listener:
-			_rewarded_ad_listener.on_ad_loaded.call(ad_unit_identifier, AdInfo.new(ad_info))
-	)
-	_plugin.connect("rewarded_on_ad_load_failed", func(ad_unit_identifier: String, error_info: Dictionary):
-		if _rewarded_ad_listener:
-			_rewarded_ad_listener.on_ad_load_failed.call(ad_unit_identifier, ErrorInfo.new(error_info))
-	)
-	_plugin.connect("rewarded_on_ad_clicked", func(ad_unit_identifier: String, ad_info: Dictionary):
-		if _rewarded_ad_listener:
-			_rewarded_ad_listener.on_ad_clicked.call(ad_unit_identifier, AdInfo.new(ad_info))
-	)
-	_plugin.connect("rewarded_on_ad_revenue_paid", func(ad_unit_identifier: String, ad_info: Dictionary):
-		if _rewarded_ad_listener:
-			_rewarded_ad_listener.on_ad_revenue_paid.call(ad_unit_identifier, AdInfo.new(ad_info))
-	)
-	_plugin.connect("rewarded_on_ad_displayed", func(ad_unit_identifier: String, ad_info: Dictionary):
-		if _rewarded_ad_listener:
-			_rewarded_ad_listener.on_ad_displayed.call(ad_unit_identifier, AdInfo.new(ad_info))
-	)
-	_plugin.connect("rewarded_on_ad_display_failed", func(ad_unit_identifier: String, error_info: Dictionary, ad_info: Dictionary):
-		if _rewarded_ad_listener:
-			_rewarded_ad_listener.on_ad_display_failed.call(ad_unit_identifier, ErrorInfo.new(error_info), AdInfo.new(ad_info))
-	)
-	_plugin.connect("rewarded_on_ad_hidden", func(ad_unit_identifier: String, ad_info: Dictionary):
-		if _rewarded_ad_listener:
-			_rewarded_ad_listener.on_ad_hidden.call(ad_unit_identifier, AdInfo.new(ad_info))
-	)
-	_plugin.connect("rewarded_on_ad_received_reward", func(ad_unit_identifier: String, reward: Dictionary, ad_info: Dictionary):
-		if _rewarded_ad_listener:
-			_rewarded_ad_listener.on_ad_received_reward.call(ad_unit_identifier, Reward.new(reward), AdInfo.new(ad_info))
-	)
+func set_rewarded_ad_listener() -> void:
+	_plugin.connect("rewarded_on_ad_loaded", self, "rewarded_on_ad_loaded")
+	_plugin.connect("rewarded_on_ad_load_failed", self, "rewarded_on_ad_load_failed")
+	_plugin.connect("rewarded_on_ad_clicked", self, "rewarded_on_ad_clicked") 
+	_plugin.connect("rewarded_on_ad_revenue_paid",self, "rewarded_on_ad_revenue_paid")
+	_plugin.connect("rewarded_on_ad_displayed", self, "rewarded_on_ad_displayed")
+	_plugin.connect("rewarded_on_ad_display_failed", self, "rewarded_on_ad_display_failed")
+	_plugin.connect("rewarded_on_ad_hidden", self, "rewarded_on_ad_hidden")
+	_plugin.connect("rewarded_on_ad_received_reward", self, "rewarded_on_ad_received_reward")
 	
 
-static func load_rewarded_ad(ad_unit_identifier: String) -> void:
+func load_rewarded_ad(ad_unit_identifier: String) -> void:
 	if _plugin == null:
 		return
-		
+	
+	set_rewarded_ad_listener()
 	_plugin.load_rewarded_ad(ad_unit_identifier)
 	
+
+func rewarded_on_ad_loaded(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_rewarded_loaded")
+
+func rewarded_on_ad_load_failed(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_rewarded_load_failed")
+
+func rewarded_on_ad_clicked(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_rewarded_clicked")
+
+func rewarded_on_ad_revenue_paid(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_rewarded_revenue_paid")
 	
-static func is_rewarded_ad_ready(ad_unit_identifier: String) -> bool:
+func rewarded_on_ad_displayed(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_rewarded_displayed")
+
+func rewarded_on_ad_display_failed(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_rewarded_display_failed")
+
+func rewarded_on_ad_hidden(ad_unit_identifier: String, ad_info: Dictionary):
+	emit_signal("on_rewarded_hidden")
+
+func rewarded_on_ad_received_reward(ad_unit_identifier: String, reward: Reward, ad_info: Dictionary):
+	emit_signal("on_get_rewarded",ad_unit_identifier,"reward",1)
+	print("on ad received reward. ", AdInfo.new(ad_info))
+
+func is_rewarded_ad_ready(ad_unit_identifier: String) -> bool:
 	if _plugin == null:
 		return false
 		
 	return _plugin.is_rewarded_ad_ready(ad_unit_identifier)
 	
 	
-static func show_rewarded_ad(ad_unit_identifier: String, placement: String = "", custom_data: String = "") -> void:
+func show_rewarded_ad(ad_unit_identifier: String, placement: String = "", custom_data: String = "") -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.show_rewarded_ad(ad_unit_identifier, placement, custom_data)
 	
 	
-static func set_rewarded_ad_extra_parameter(ad_unit_identifier: String, key: String, value: String) -> void:
+func set_rewarded_ad_extra_parameter(ad_unit_identifier: String, key: String, value: String) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.set_rewarded_ad_extra_parameter(ad_unit_identifier, key, value)
 
 
-static func set_rewarded_ad_local_extra_parameter(ad_unit_identifier: String, key: String, value: Object) -> void:
+func set_rewarded_ad_local_extra_parameter(ad_unit_identifier: String, key: String, value: Object) -> void:
 	if _plugin == null:
 		return
 		
@@ -699,7 +773,7 @@ static func set_rewarded_ad_local_extra_parameter(ad_unit_identifier: String, ke
 
 ### Event Tracking ###
 
-static func track_event(name: String, parameters: Dictionary) -> void:
+func track_event(name: String, parameters: Dictionary) -> void:
 	if _plugin == null:
 		return
 		
@@ -708,70 +782,70 @@ static func track_event(name: String, parameters: Dictionary) -> void:
 
 ### Settings ###
 
-static func set_muted(muted: bool) -> void:
+func set_muted(muted: bool) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.set_muted(muted)
 	
 	
-static func is_muted() -> bool:
+func is_muted() -> bool:
 	if _plugin == null:
 		return false
 		
 	return _plugin.is_muted()
 	
 	
-static func set_verbose_logging(enabled: bool) -> void:
+func set_verbose_logging(enabled: bool) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.set_verbose_logging(enabled)
 	
 	
-static func is_verbose_logging_enabled() -> void:
+func is_verbose_logging_enabled() -> bool:
 	if _plugin == null:
-		return
+		return false
 		
 	return _plugin.is_verbose_logging_enabled()
 	
 	
-static func set_creative_debugger_enabled(enabled: bool) -> void:
+func set_creative_debugger_enabled(enabled: bool) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.set_creative_debugger_enabled(enabled)
 	
 	
-static func set_test_device_advertising_identifiers(advertising_identifiers: Array) -> void:
+func set_test_device_advertising_identifiers(advertising_identifiers: Array) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.set_test_device_advertising_identifiers()
 	
 	
-static func set_exception_handler_enabled(enabled: bool) -> void:
+func set_exception_handler_enabled(enabled: bool) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.set_exception_handler_enabled(enabled)
 	
 	
-static func set_location_collection_enabled(enabled: bool) -> void:
+func set_location_collection_enabled(enabled: bool) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.set_location_collection_enabled(enabled)
 	
 	
-static func set_extra_parameter(key: String, value: String) -> void:
+func set_extra_parameter(key: String, value: String) -> void:
 	if _plugin == null:
 		return
 		
 	_plugin.set_extra_parameter(key, value)
 	
 	
-static func _get_plugin(plugin_name: String) -> Object:
+func _get_plugin(plugin_name: String) -> Object:
 	if Engine.has_singleton(plugin_name):
 		return Engine.get_singleton(plugin_name)
 
@@ -781,7 +855,7 @@ static func _get_plugin(plugin_name: String) -> Object:
 	return null
 	
 
-static func _generate_metadata() -> Dictionary:
+func _generate_metadata() -> Dictionary:
 	return {
 		"GodotVersion": Engine.get_version_info()
 	}
@@ -817,7 +891,7 @@ enum AdViewPosition {
 	BOTTOM_RIGHT
 }
 
-static func get_adview_position(adview_position: AdViewPosition) -> String:
+func get_adview_position(adview_position) -> String:
 	match adview_position:
 		AdViewPosition.TOP_LEFT:
 			return "TOP_LEFT"
@@ -861,7 +935,7 @@ enum AdLoadState {
 }
 
 
-static func get_app_tracking_status(status_string: String) -> AppTrackingStatus:
+func get_app_tracking_status(status_string: String):
 	match status_string:
 		"-1": 
 			return AppTrackingStatus.UNAVAILABLE
@@ -875,7 +949,7 @@ static func get_app_tracking_status(status_string: String) -> AppTrackingStatus:
 			return AppTrackingStatus.AUTHORIZED
 			
 
-static func get_app_tracking_status_string(status: AppTrackingStatus) -> String:
+func get_app_tracking_status_string(status) -> String:
 	match status:
 		AppTrackingStatus.UNAVAILABLE: 
 			return "UNAVAILABLE"
@@ -907,96 +981,96 @@ class TargetingData:
 		OTHER
 	}
 
-	var year_of_birth: int:
-		set(value):
-			if AppLovinMAX._plugin == null:
-				return
-				
-			AppLovinMAX._plugin.set_targeting_data_year_of_birth(value)
+	var year_of_birth: int setget set_year_of_birth
+	func set_year_of_birth(value):
+		if self._plugin == null:
+			return
+			
+		AppLovinMax._plugin.set_targeting_data_year_of_birth(value)
 			
 			
-	var gender: UserGender:
-		set(value):
-			if AppLovinMAX._plugin == null:
-				return
+	var gender setget set_gender
+	func set_gender(value):
+		if AppLovinMax._plugin == null:
+			return
+		
+		var string_value
+		match value:
+			UserGender.FEMALE:
+				string_value = "F"
+			UserGender.MALE:
+				string_value = "M"
+			UserGender.OTHER:
+				string_value = "O"
+			_:
+				string_value = ""
+		AppLovinMax._plugin.set_targeting_data_gender(string_value)
 			
-			var string_value
-			match value:
-				UserGender.FEMALE:
-					string_value = "F"
-				UserGender.MALE:
-					string_value = "M"
-				UserGender.OTHER:
-					string_value = "O"
-				_:
-					string_value = ""
-			AppLovinMAX._plugin.set_targeting_data_gender(string_value)
 			
-			
-	var maximum_ad_content_rating: AdContentRating:
-		set(value):
-			if AppLovinMAX._plugin == null:
-				return
-			
-			AppLovinMAX._plugin.set_targeting_data_maximum_ad_content_rating(int(value))
+	var maximum_ad_content_rating setget set_maximum_ad_content_rating
+	func set_maximum_ad_content_rating(value):
+		if AppLovinMax._plugin == null:
+			return
+		
+		AppLovinMax._plugin.set_targeting_data_maximum_ad_content_rating(int(value))
 		
 		
-	var email: String:
-		set(value):
-			if AppLovinMAX._plugin == null:
-				return
-			
-			AppLovinMAX._plugin.set_targeting_data_email(value)
-			
-			
-	var phone_number: String:
-		set(value):
-			if AppLovinMAX._plugin == null:
-				return
-			
-			AppLovinMAX._plugin.set_targeting_data_phone_number(phone_number)
+	var email: String setget set_email
+	func set_email(value):
+		if AppLovinMax._plugin == null:
+			return
+		
+		AppLovinMax._plugin.set_targeting_data_email(value)
 			
 			
-	var keywords: Array:
-		set(value):
-			if AppLovinMAX._plugin == null:
-				return
+	var phone_number: String setget set_phone_number
+	func set_phone_number(value):
+		if AppLovinMax._plugin == null:
+			return
+		
+		AppLovinMax._plugin.set_targeting_data_phone_number(phone_number)
 			
-			AppLovinMAX._plugin.set_targeting_data_keywords(value)
+			
+	var keywords: Array setget set_keywords
+	func set_keywords(value):
+		if AppLovinMax._plugin == null:
+			return
+		
+		AppLovinMax._plugin.set_targeting_data_keywords(value)
 		
 		
-	var interests: Array:
-		set(value):
-			if AppLovinMAX._plugin == null:
-				return
-			
-			AppLovinMAX._plugin.set_targeting_data_interests(value)
+	var interests: Array setget set_interests
+	func set_interests(value):
+		if AppLovinMax._plugin == null:
+			return
+		
+		AppLovinMax._plugin.set_targeting_data_interests(value)
 
 
 	func clear_all() -> void:
-		if AppLovinMAX._plugin == null:
+		if AppLovinMax._plugin == null:
 				return
 		
-		AppLovinMAX._plugin.clear_all_targeting_data()
+		AppLovinMax._plugin.clear_all_targeting_data()
 
 
 class UserSegment:
-	var name: String:
-		set(value):
-			if AppLovinMAX._plugin == null:
-				return
-		
-			AppLovinMAX._plugin.set_user_segment_field("name", value)
+	var name: String setget set_name
+	func set_name(value):
+		if AppLovinMax._plugin == null:
+			return
+	
+		AppLovinMax._plugin.set_user_segment_field("name", value)
 
 
 class SdkConfiguration:
 	var is_successfully_initialized: bool
 	var country_code: String
-	var app_tracking_status: AppTrackingStatus
+	var app_tracking_status
 	var is_test_mode_enabled: bool
 
 
-	static func create_empty() -> SdkConfiguration:
+	func create_empty() -> SdkConfiguration:
 		var sdk_configuration = SdkConfiguration.new()
 		sdk_configuration.is_successfully_initialized = true
 		var localeInfo = OS.get_locale().split("_", true)
@@ -1005,14 +1079,14 @@ class SdkConfiguration:
 		return sdk_configuration
 
 
-	static func create(event_props: Dictionary) -> SdkConfiguration:
+	func create(event_props: Dictionary) -> SdkConfiguration:
 		var sdk_configuration = SdkConfiguration.new()
 		sdk_configuration.is_successfully_initialized = AppLovinMAXDictionaryUtils.get_bool(event_props, "isSuccessfullyInitialized")
 		sdk_configuration.country_code = AppLovinMAXDictionaryUtils.get_string(event_props, "countryCode", "")
 		sdk_configuration.is_test_mode_enabled = AppLovinMAXDictionaryUtils.get_bool(event_props, "isTestModeEnabled")
 
 		var app_tracking_status_string = AppLovinMAXDictionaryUtils.get_string(event_props, "appTrackingStatus", "-1")
-		sdk_configuration.app_tracking_status = AppLovinMAX.get_app_tracking_status(app_tracking_status_string)
+		sdk_configuration.app_tracking_status = AppLovinMax.get_app_tracking_status(app_tracking_status_string)
 
 		return sdk_configuration
 		
@@ -1020,7 +1094,7 @@ class SdkConfiguration:
 	func _to_string() -> String:
 		return "[SdkConfiguration: is_successfully_initialized = " + str(is_successfully_initialized) +\
 			   ", country_code = " + country_code +\
-			   ", app_tracking_status = " + AppLovinMAX.get_app_tracking_status_string(app_tracking_status) +\
+			   ", app_tracking_status = " + AppLovinMax.get_app_tracking_status_string(app_tracking_status) +\
 			   ", is_test_mode_enabled = " + str(is_test_mode_enabled) + "]"
 
 
@@ -1044,7 +1118,7 @@ class Reward:
 class WaterfallInfo:
 	var name: String
 	var test_name: String
-	var network_responses: Array[NetworkResponseInfo]
+	var network_responses: Array
 	var latency_millies: int
 
 
@@ -1108,7 +1182,7 @@ class AdInfo:
 
 
 class NetworkResponseInfo:
-	var ad_load_state: AdLoadState
+	var ad_load_state
 	var mediated_network: MediatedNetworkInfo
 	var credentials: Dictionary
 	var is_bidding: bool
@@ -1161,7 +1235,7 @@ class MediatedNetworkInfo:
 
 
 class ErrorInfo:
-	var code: ErrorCode
+	var code
 	var message: String
 	var mediated_network_error_code: int
 	var mediated_network_error_message: String

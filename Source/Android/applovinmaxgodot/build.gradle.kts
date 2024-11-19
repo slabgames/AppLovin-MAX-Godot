@@ -46,6 +46,7 @@ android {
         // Flavor when building Unity Plugin as a standalone product
         create("standalone") {
             buildConfigField("boolean", "IS_TEST_APP", "false")
+            dimension = "default"
         }
         // Flavor from the test app
         create("app") {
@@ -91,17 +92,21 @@ dependencies {
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
-    //id("com.google.gms.google-services")
+//    id("applovin-quality-service")
 }
+
+//applovin {
+//    apiKey = "«your-ad-review-key»"
+//}
 
 private val versionMajor = 1
 private val versionMinor = 0
 private val versionPatch = 3
 
-//var libraryVersionName by extra("${versionMajor}.${versionMinor}.${versionPatch}")
-//var libraryVersionCode by extra((versionMajor * 10000) + (versionMinor * 100) + versionPatch)
-//var libraryArtifactId by extra("applovin-max-godot-plugin")
-//var libraryArtifactName by extra("${libraryArtifactId}-${libraryVersionName}.aar")
+var libraryVersionName by extra("${versionMajor}.${versionMinor}.${versionPatch}")
+var libraryVersionCode by extra((versionMajor * 10000) + (versionMinor * 100) + versionPatch)
+var libraryArtifactId by extra("applovin-max-godot-plugin")
+var libraryArtifactName by extra("${libraryArtifactId}-${libraryVersionName}.aar")
 
 //var libraryVersions = rootProject.extra["versions"] as Map<*, *>
 
