@@ -1,6 +1,6 @@
 # AppLovin MAX Godot Plugin
 
-AppLovin MAX Godot plugin for Android and iOS. We currently only support Godot 4.x.
+AppLovin MAX Godot plugin for Android and iOS. We currently only support Godot 3.x.
 
 ## Documentation
 For information on how to use our plugin in your GDScripts, check out our integration docs [here](https://developers.applovin.com/en/godot/overview/integration).
