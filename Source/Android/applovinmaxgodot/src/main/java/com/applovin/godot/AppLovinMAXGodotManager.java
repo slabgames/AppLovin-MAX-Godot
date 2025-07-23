@@ -36,10 +36,11 @@ import com.applovin.mediation.ads.MaxAdView;
 import com.applovin.mediation.ads.MaxAppOpenAd;
 import com.applovin.mediation.ads.MaxInterstitialAd;
 import com.applovin.mediation.ads.MaxRewardedAd;
-import com.applovin.mediation.ads.MaxRewardedInterstitialAd;
+//import com.applovin.mediation.ads.MaxRewardedInterstitialAd;
 import com.applovin.sdk.AppLovinMediationProvider;
 import com.applovin.sdk.AppLovinSdk;
 import com.applovin.sdk.AppLovinSdkConfiguration;
+import com.applovin.sdk.AppLovinSdkInitializationConfiguration;
 import com.applovin.sdk.AppLovinSdkSettings;
 import com.applovin.sdk.AppLovinSdkUtils;
 
@@ -99,7 +100,7 @@ public class AppLovinMAXGodotManager
     private final Map<String, MaxInterstitialAd>         interstitials;
     private final Map<String, MaxAppOpenAd>              appOpenAds;
     private final Map<String, MaxRewardedAd>             rewardedAds;
-    private final Map<String, MaxRewardedInterstitialAd> rewardedInterstitialAds;
+//    private final Map<String, MaxRewardedInterstitialAd> rewardedInterstitialAds;
 
     // AdView Fields
     private final Map<String, MaxAdView>           adViews;
@@ -125,7 +126,7 @@ public class AppLovinMAXGodotManager
         interstitials = new HashMap<>( 2 );
         appOpenAds = new HashMap<>( 2 );
         rewardedAds = new HashMap<>( 2 );
-        rewardedInterstitialAds = new HashMap<>( 2 );
+//        rewardedInterstitialAds = new HashMap<>( 2 );
         adViews = new HashMap<>( 2 );
         adViewAdFormats = new HashMap<>( 2 );
         adViewPositions = new HashMap<>( 2 );
@@ -195,23 +196,35 @@ public class AppLovinMAXGodotManager
         final Activity currentActivity = getCurrentActivity();
         if ( StringUtils.isValidString( sdkKey ) )
         {
-            sdk = AppLovinSdk.getInstance( sdkKey, settings, currentActivity );
+            sdk = AppLovinSdk.getInstance( currentActivity );
         }
-        else
-        {
-            sdk = AppLovinSdk.getInstance( settings, currentActivity );
-        }
+//        else
+//        {
+//            sdk = AppLovinSdk.getInstance( currentActivity );
+//        }
 
-        sdk.setPluginVersion( "Godot-" + VERSION );
-        sdk.setMediationProvider( AppLovinMediationProvider.MAX );
-        sdk.initializeSdk( new AppLovinSdk.SdkInitializationListener()
-        {
+//        sdk.setPluginVersion( "Godot-" + VERSION );
+//        sdk.setMediationProvider( AppLovinMediationProvider.MAX );
+//        applovinsdk
+        AppLovinSdkInitializationConfiguration initConfig = AppLovinSdkInitializationConfiguration.builder( sdkKey )
+                .setMediationProvider( AppLovinMediationProvider.MAX )
+// Perform any additional configuration/setting changes
+                .build();
+        sdk.initialize(initConfig, new AppLovinSdk.SdkInitializationListener() {
             @Override
-            public void onSdkInitialized(final AppLovinSdkConfiguration config)
-            {
-                listener.onSdkInitializationComplete( config );
+            public void onSdkInitialized(AppLovinSdkConfiguration appLovinSdkConfiguration) {
+                listener.onSdkInitializationComplete( appLovinSdkConfiguration );
             }
-        } );
+        });
+
+//                new AppLovinSdk.SdkInitializationListener()
+//        {
+//            @Override
+//            public void onSdkInitialized(final AppLovinSdkConfiguration config)
+//            {
+//                listener.onSdkInitializationComplete( config );
+//            }
+//        } );
 
         return sdk;
     }
@@ -483,35 +496,35 @@ public class AppLovinMAXGodotManager
 
     // REWARDED INTERSTITIAL
 
-    public void loadRewardedInterstitialAd(final String adUnitId)
-    {
-        MaxRewardedInterstitialAd rewardedInterstitialAd = retrieveRewardedInterstitialAd( adUnitId );
-        rewardedInterstitialAd.loadAd();
-    }
-
-    public boolean isRewardedInterstitialAdReady(final String adUnitId)
-    {
-        MaxRewardedInterstitialAd rewardedInterstitialAd = retrieveRewardedInterstitialAd( adUnitId );
-        return rewardedInterstitialAd.isReady();
-    }
-
-    public void showRewardedInterstitialAd(final String adUnitId, final String placement, final String customData)
-    {
-        MaxRewardedInterstitialAd rewardedInterstitialAd = retrieveRewardedInterstitialAd( adUnitId );
-        rewardedInterstitialAd.showAd( placement, customData );
-    }
-
-    public void setRewardedInterstitialAdExtraParameter(final String adUnitId, final String key, final String value)
-    {
-        MaxRewardedInterstitialAd rewardedInterstitialAd = retrieveRewardedInterstitialAd( adUnitId );
-        rewardedInterstitialAd.setExtraParameter( key, value );
-    }
-
-    public void setRewardedInterstitialAdLocalExtraParameter(final String adUnitId, final String key, final Object value)
-    {
-        MaxRewardedInterstitialAd rewardedInterstitialAd = retrieveRewardedInterstitialAd( adUnitId );
-        rewardedInterstitialAd.setLocalExtraParameter( key, value );
-    }
+//    public void loadRewardedInterstitialAd(final String adUnitId)
+//    {
+//        MaxRewardedInterstitialAd rewardedInterstitialAd = retrieveRewardedInterstitialAd( adUnitId );
+//        rewardedInterstitialAd.loadAd();
+//    }
+//
+//    public boolean isRewardedInterstitialAdReady(final String adUnitId)
+//    {
+//        MaxRewardedInterstitialAd rewardedInterstitialAd = retrieveRewardedInterstitialAd( adUnitId );
+//        return rewardedInterstitialAd.isReady();
+//    }
+//
+//    public void showRewardedInterstitialAd(final String adUnitId, final String placement, final String customData)
+//    {
+//        MaxRewardedInterstitialAd rewardedInterstitialAd = retrieveRewardedInterstitialAd( adUnitId );
+//        rewardedInterstitialAd.showAd( placement, customData );
+//    }
+//
+//    public void setRewardedInterstitialAdExtraParameter(final String adUnitId, final String key, final String value)
+//    {
+//        MaxRewardedInterstitialAd rewardedInterstitialAd = retrieveRewardedInterstitialAd( adUnitId );
+//        rewardedInterstitialAd.setExtraParameter( key, value );
+//    }
+//
+//    public void setRewardedInterstitialAdLocalExtraParameter(final String adUnitId, final String key, final Object value)
+//    {
+//        MaxRewardedInterstitialAd rewardedInterstitialAd = retrieveRewardedInterstitialAd( adUnitId );
+//        rewardedInterstitialAd.setLocalExtraParameter( key, value );
+//    }
 
     // AD INFO
 
@@ -643,10 +656,10 @@ public class AppLovinMAXGodotManager
         {
             signalName = Signal.REWARDED_ON_AD_LOADED;
         }
-        else if ( MaxAdFormat.REWARDED_INTERSTITIAL == adFormat )
-        {
-            signalName = Signal.REWARDED_INTERSTITIAL_ON_AD_LOADED;
-        }
+//        else if ( MaxAdFormat.REWARDED_INTERSTITIAL == adFormat )
+//        {
+//            signalName = Signal.REWARDED_INTERSTITIAL_ON_AD_LOADED;
+//        }
         else
         {
             logInvalidAdFormat( adFormat );
@@ -703,10 +716,10 @@ public class AppLovinMAXGodotManager
         {
             signalName = Signal.REWARDED_ON_AD_LOAD_FAILED;
         }
-        else if ( rewardedInterstitialAds.containsKey( adUnitId ) )
-        {
-            signalName = Signal.REWARDED_INTERSTITIAL_ON_AD_LOAD_FAILED;
-        }
+//        else if ( rewardedInterstitialAds.containsKey( adUnitId ) )
+//        {
+//            signalName = Signal.REWARDED_INTERSTITIAL_ON_AD_LOAD_FAILED;
+//        }
         else
         {
             logStackTrace( new IllegalStateException( "invalid adUnitId: " + adUnitId ) );
@@ -1634,20 +1647,20 @@ public class AppLovinMAXGodotManager
         return result;
     }
 
-    private MaxRewardedInterstitialAd retrieveRewardedInterstitialAd(final String adUnitId)
-    {
-        MaxRewardedInterstitialAd result = rewardedInterstitialAds.get( adUnitId );
-        if ( result == null )
-        {
-            result = new MaxRewardedInterstitialAd( adUnitId, sdk, getCurrentActivity() );
-            result.setListener( this );
-            result.setRevenueListener( this );
-
-            rewardedInterstitialAds.put( adUnitId, result );
-        }
-
-        return result;
-    }
+//    private MaxRewardedInterstitialAd retrieveRewardedInterstitialAd(final String adUnitId)
+//    {
+//        MaxRewardedInterstitialAd result = rewardedInterstitialAds.get( adUnitId );
+//        if ( result == null )
+//        {
+//            result = new MaxRewardedInterstitialAd( adUnitId, sdk, getCurrentActivity() );
+//            result.setListener( this );
+//            result.setRevenueListener( this );
+//
+//            rewardedInterstitialAds.put( adUnitId, result );
+//        }
+//
+//        return result;
+//    }
 
     private MaxAdView retrieveAdView(final String adUnitId, final MaxAdFormat adFormat)
     {

@@ -6,9 +6,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import androidx.annotation.Nullable;
+
+import com.applovin.sdk.AppLovinMediationProvider;
 import com.applovin.sdk.AppLovinPrivacySettings;
 import com.applovin.sdk.AppLovinSdk;
 import com.applovin.sdk.AppLovinSdkConfiguration;
+import com.applovin.sdk.AppLovinSdkInitializationConfiguration;
 import com.applovin.sdk.AppLovinSdkSettings;
 import com.applovin.sdk.AppLovinSdkUtils;
 //import com.applovin.sdk.AppLovinTargetingData;
@@ -22,6 +26,7 @@ import org.godotengine.godot.plugin.UsedByGodot;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -245,22 +250,40 @@ public class AppLovinMAXGodotPlugin
     @UsedByGodot
     public void initialize(String sdkKey, Dictionary metadata, String[] adUnitIds)
     {
-        sdk = appLovinMAX.initializeSdkWithCompletionHandler( sdkKey, generateSdkSettings( adUnitIds, metadata ), new AppLovinMAXGodotManager.Listener()
+        // Create the initialization configuration
+        AppLovinSdkInitializationConfiguration initConfig = AppLovinSdkInitializationConfiguration.builder( sdkKey )
+                .setMediationProvider( AppLovinMediationProvider.MAX )
+                .build();
+
+        // Initialize the SDK with the configuration
+        AppLovinSdk.getInstance( getCurrentActivity() ).initialize( initConfig, new AppLovinSdk.SdkInitializationListener()
         {
             @Override
-            public void onSdkInitializationComplete(final AppLovinSdkConfiguration sdkConfiguration)
+            public void onSdkInitialized(final AppLovinSdkConfiguration sdkConfig)
             {
+                // Start loading ads
+                sdk = AppLovinSdk.getInstance(getCurrentActivity());
+                setPendingExtraParametersIfNeeded( sdk.getSettings() );
                 isdkInitialized = true;
-
                 emitSignal( Signal.SDK_INITIALIZATION, get_sdk_configuration() );
             }
         } );
+//        sdk = appLovinMAX.initializeSdkWithCompletionHandler( sdkKey, generateSdkSettings( adUnitIds, metadata ), new AppLovinMAXGodotManager.Listener()
+//        {
+//            @Override
+//            public void onSdkInitializationComplete(final AppLovinSdkConfiguration sdkConfiguration)
+//            {
+//                isdkInitialized = true;
+//
+//                emitSignal( Signal.SDK_INITIALIZATION, get_sdk_configuration() );
+//            }
+//        } );
 
-        if ( !TextUtils.isEmpty( userIdToSet ) )
-        {
-            sdk.setUserIdentifier( userIdToSet );
-            userIdToSet = null;
-        }
+//        if ( !TextUtils.isEmpty( userIdToSet ) )
+//        {
+//            sdk.setUserIdentifier( userIdToSet );
+//            userIdToSet = null;
+//        }
 
 //        if ( !TextUtils.isEmpty( userSegmentNameToSet ) )
 //        {
@@ -310,7 +333,7 @@ public class AppLovinMAXGodotPlugin
 //            targetingInterests = null;
 //        }
 
-        setPendingExtraParametersIfNeeded( sdk.getSettings() );
+
     }
 
     @UsedByGodot
@@ -346,15 +369,15 @@ public class AppLovinMAXGodotPlugin
     @UsedByGodot
     public void set_user_id(String userId)
     {
-        if ( sdk != null )
-        {
-            sdk.setUserIdentifier( userId );
-            userIdToSet = null;
-        }
-        else
-        {
-            userIdToSet = userId;
-        }
+//        if ( sdk != null )
+//        {
+//            sdk.setUserIdentifier( userId );
+//            userIdToSet = null;
+//        }
+//        else
+//        {
+//            userIdToSet = userId;
+//        }
     }
 
     @UsedByGodot
@@ -748,35 +771,35 @@ public class AppLovinMAXGodotPlugin
 
     //region Rewarded Interstitial
 
-    @UsedByGodot
-    public void load_rewarded_interstitial(String adUnitId)
-    {
-        appLovinMAX.loadRewardedInterstitialAd( adUnitId.trim() );
-    }
-
-    @UsedByGodot
-    public boolean is_rewarded_interstitial_ready(String adUnitId)
-    {
-        return appLovinMAX.isRewardedInterstitialAdReady( adUnitId.trim() );
-    }
-
-    @UsedByGodot
-    public void show_rewarded_interstitial(String adUnitId, String placement, String customData)
-    {
-        appLovinMAX.showRewardedInterstitialAd( adUnitId.trim(), placement, customData );
-    }
-
-    @UsedByGodot
-    public void set_rewarded_interstitial_extra_parameter(String adUnitId, String key, String value)
-    {
-        appLovinMAX.setRewardedInterstitialAdExtraParameter( adUnitId.trim(), key, value );
-    }
-
-    @UsedByGodot
-    public void set_rewarded_interstitial_local_extra_parameter(String adUnitId, String key, Object value)
-    {
-        appLovinMAX.setRewardedInterstitialAdLocalExtraParameter( adUnitId.trim(), key, value );
-    }
+//    @UsedByGodot
+//    public void load_rewarded_interstitial(String adUnitId)
+//    {
+//        appLovinMAX.loadRewardedInterstitialAd( adUnitId.trim() );
+//    }
+//
+//    @UsedByGodot
+//    public boolean is_rewarded_interstitial_ready(String adUnitId)
+//    {
+//        return appLovinMAX.isRewardedInterstitialAdReady( adUnitId.trim() );
+//    }
+//
+//    @UsedByGodot
+//    public void show_rewarded_interstitial(String adUnitId, String placement, String customData)
+//    {
+//        appLovinMAX.showRewardedInterstitialAd( adUnitId.trim(), placement, customData );
+//    }
+//
+//    @UsedByGodot
+//    public void set_rewarded_interstitial_extra_parameter(String adUnitId, String key, String value)
+//    {
+//        appLovinMAX.setRewardedInterstitialAdExtraParameter( adUnitId.trim(), key, value );
+//    }
+//
+//    @UsedByGodot
+//    public void set_rewarded_interstitial_local_extra_parameter(String adUnitId, String key, Object value)
+//    {
+//        appLovinMAX.setRewardedInterstitialAdLocalExtraParameter( adUnitId.trim(), key, value );
+//    }
 
     //endregion
 
@@ -975,15 +998,15 @@ public class AppLovinMAXGodotPlugin
     @UsedByGodot
     public void set_exception_handler_enabled(boolean enabled)
     {
-        if ( sdk != null )
-        {
-            sdk.getSettings().setExceptionHandlerEnabled( enabled );
-            exceptionHandlerEnabled = null;
-        }
-        else
-        {
-            exceptionHandlerEnabled = enabled;
-        }
+//        if ( sdk != null )
+//        {
+//            sdk.getSettings().setExceptionHandlerEnabled( enabled );
+//            exceptionHandlerEnabled = null;
+//        }
+//        else
+//        {
+//            exceptionHandlerEnabled = enabled;
+//        }
     }
 
     @UsedByGodot
@@ -1048,61 +1071,63 @@ public class AppLovinMAXGodotPlugin
         }
     }
 
-    private AppLovinSdkSettings generateSdkSettings(final String[] adUnitIds, final Dictionary metaData)
-    {
-        AppLovinSdkSettings settings = new AppLovinSdkSettings( getCurrentActivity() );
+//    private AppLovinSdkSettings generateSdkSettings(final String[] adUnitIds, final Dictionary metaData)
+//    {
+//        AppLovinSdkSettings settings = new AppLovinSdkSettings() {
+//
+//        };
 
-        if ( testDeviceAdvertisingIds != null && !testDeviceAdvertisingIds.isEmpty() )
-        {
-            settings.setTestDeviceAdvertisingIds( testDeviceAdvertisingIds );
-            testDeviceAdvertisingIds = null;
-        }
+//        if ( testDeviceAdvertisingIds != null && !testDeviceAdvertisingIds.isEmpty() )
+//        {
+//            settings.setTestDeviceAdvertisingIds( testDeviceAdvertisingIds );
+//            testDeviceAdvertisingIds = null;
+//        }
+//
+//        if ( verboseLogging != null )
+//        {
+//            settings.setVerboseLogging( verboseLogging );
+//            verboseLogging = null;
+//        }
+//
+//        if ( creativeDebuggerEnabled != null )
+//        {
+//            settings.setCreativeDebuggerEnabled( creativeDebuggerEnabled );
+//            creativeDebuggerEnabled = null;
+//        }
+//
+//        if ( exceptionHandlerEnabled != null )
+//        {
+//            settings.setExceptionHandlerEnabled( exceptionHandlerEnabled );
+//            exceptionHandlerEnabled = null;
+//        }
+//
+//        if ( locationCollectionEnabled != null )
+//        {
+////            settings.setLocationCollectionEnabled( locationCollectionEnabled );
+//            locationCollectionEnabled = null;
+//        }
+//
+//        settings.setInitializationAdUnitIds( Arrays.asList( adUnitIds ) );
+//
+//        // Set the meta data to settings.
+//        try
+//        {
+//            final Field metaDataField = AppLovinSdkSettings.class.getDeclaredField( "metaData" );
+//            metaDataField.setAccessible( true );
+//            final Map<String, String> metaDataMap = (Map<String, String>) metaDataField.get( settings );
+//            for ( final Map.Entry<String, Object> metaDataEntry : metaData.entrySet() )
+//            {
+//                final Object value = metaDataEntry.getValue();
+//                if ( value instanceof String )
+//                {
+//                    metaDataMap.put( metaDataEntry.getKey(), (String) value );
+//                }
+//            }
+//        }
+//        catch ( Exception ignored ) { }
 
-        if ( verboseLogging != null )
-        {
-            settings.setVerboseLogging( verboseLogging );
-            verboseLogging = null;
-        }
-
-        if ( creativeDebuggerEnabled != null )
-        {
-            settings.setCreativeDebuggerEnabled( creativeDebuggerEnabled );
-            creativeDebuggerEnabled = null;
-        }
-
-        if ( exceptionHandlerEnabled != null )
-        {
-            settings.setExceptionHandlerEnabled( exceptionHandlerEnabled );
-            exceptionHandlerEnabled = null;
-        }
-
-        if ( locationCollectionEnabled != null )
-        {
-//            settings.setLocationCollectionEnabled( locationCollectionEnabled );
-            locationCollectionEnabled = null;
-        }
-
-        settings.setInitializationAdUnitIds( Arrays.asList( adUnitIds ) );
-
-        // Set the meta data to settings.
-        try
-        {
-            final Field metaDataField = AppLovinSdkSettings.class.getDeclaredField( "metaData" );
-            metaDataField.setAccessible( true );
-            final Map<String, String> metaDataMap = (Map<String, String>) metaDataField.get( settings );
-            for ( final Map.Entry<String, Object> metaDataEntry : metaData.entrySet() )
-            {
-                final Object value = metaDataEntry.getValue();
-                if ( value instanceof String )
-                {
-                    metaDataMap.put( metaDataEntry.getKey(), (String) value );
-                }
-            }
-        }
-        catch ( Exception ignored ) { }
-
-        return settings;
-    }
+//        return settings;
+//    }
 /*
     private AppLovinTargetingData.Gender getAppLovinGender(String gender)
     {
