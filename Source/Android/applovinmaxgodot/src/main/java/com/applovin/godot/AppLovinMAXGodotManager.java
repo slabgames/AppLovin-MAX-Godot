@@ -190,7 +190,6 @@ public class AppLovinMAXGodotManager
     }
 
     public AppLovinSdk initializeSdkWithCompletionHandler(final String sdkKey,
-                                                          final AppLovinSdkSettings settings,
                                                           final Listener listener)
     {
         final Activity currentActivity = getCurrentActivity();

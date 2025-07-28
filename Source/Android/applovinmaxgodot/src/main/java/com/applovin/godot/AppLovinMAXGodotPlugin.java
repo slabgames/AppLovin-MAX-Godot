@@ -256,28 +256,28 @@ public class AppLovinMAXGodotPlugin
                 .build();
 
         // Initialize the SDK with the configuration
-        AppLovinSdk.getInstance( getCurrentActivity() ).initialize( initConfig, new AppLovinSdk.SdkInitializationListener()
-        {
-            @Override
-            public void onSdkInitialized(final AppLovinSdkConfiguration sdkConfig)
-            {
-                // Start loading ads
-                sdk = AppLovinSdk.getInstance(getCurrentActivity());
-                setPendingExtraParametersIfNeeded( sdk.getSettings() );
-                isdkInitialized = true;
-                emitSignal( Signal.SDK_INITIALIZATION, get_sdk_configuration() );
-            }
-        } );
-//        sdk = appLovinMAX.initializeSdkWithCompletionHandler( sdkKey, generateSdkSettings( adUnitIds, metadata ), new AppLovinMAXGodotManager.Listener()
+//        AppLovinSdk.getInstance( getCurrentActivity() ).initialize( initConfig, new AppLovinSdk.SdkInitializationListener()
 //        {
 //            @Override
-//            public void onSdkInitializationComplete(final AppLovinSdkConfiguration sdkConfiguration)
+//            public void onSdkInitialized(final AppLovinSdkConfiguration sdkConfig)
 //            {
+//                // Start loading ads
+//                sdk = AppLovinSdk.getInstance(getCurrentActivity());
+//                setPendingExtraParametersIfNeeded( sdk.getSettings() );
 //                isdkInitialized = true;
-//
 //                emitSignal( Signal.SDK_INITIALIZATION, get_sdk_configuration() );
 //            }
 //        } );
+        sdk = appLovinMAX.initializeSdkWithCompletionHandler( sdkKey, new AppLovinMAXGodotManager.Listener()
+        {
+            @Override
+            public void onSdkInitializationComplete(final AppLovinSdkConfiguration sdkConfiguration)
+            {
+                isdkInitialized = true;
+
+                emitSignal( Signal.SDK_INITIALIZATION, get_sdk_configuration() );
+            }
+        } );
 
 //        if ( !TextUtils.isEmpty( userIdToSet ) )
 //        {
