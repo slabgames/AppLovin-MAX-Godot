@@ -84,7 +84,7 @@ dependencies {
 
     // Godot Engine
     // compileOnly("org.godotengine.godot:godot-lib:+@aar")
-    compileOnly(files("./libs/godot-lib.3.6.stable.release.aar"))
+    compileOnly(files("./libs/godot-lib.3.6.1.stable.release.aar"))
 //    compileOnly(files("./libs/applovin-sdk-13.0.1-sources"))
 }
 
@@ -101,7 +101,7 @@ plugins {
 
 private val versionMajor = 1
 private val versionMinor = 0
-private val versionPatch = 3
+private val versionPatch = 4
 
 var libraryVersionName by extra("${versionMajor}.${versionMinor}.${versionPatch}")
 var libraryVersionCode by extra((versionMajor * 10000) + (versionMinor * 100) + versionPatch)
