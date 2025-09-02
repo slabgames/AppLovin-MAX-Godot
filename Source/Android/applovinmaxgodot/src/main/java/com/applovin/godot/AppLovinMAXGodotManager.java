@@ -197,24 +197,18 @@ public class AppLovinMAXGodotManager
         {
             sdk = AppLovinSdk.getInstance( currentActivity );
         }
-//        else
-//        {
-//            sdk = AppLovinSdk.getInstance( currentActivity );
-//        }
+        else
+        {
+            sdk = AppLovinSdk.getInstance( currentActivity );
+        }
 
 //        sdk.setPluginVersion( "Godot-" + VERSION );
 //        sdk.setMediationProvider( AppLovinMediationProvider.MAX );
-//        applovinsdk
         AppLovinSdkInitializationConfiguration initConfig = AppLovinSdkInitializationConfiguration.builder( sdkKey )
                 .setMediationProvider( AppLovinMediationProvider.MAX )
 // Perform any additional configuration/setting changes
                 .build();
-        sdk.initialize(initConfig, new AppLovinSdk.SdkInitializationListener() {
-            @Override
-            public void onSdkInitialized(AppLovinSdkConfiguration appLovinSdkConfiguration) {
-                listener.onSdkInitializationComplete( appLovinSdkConfiguration );
-            }
-        });
+        sdk.initialize(initConfig, listener::onSdkInitializationComplete);
 
 //                new AppLovinSdk.SdkInitializationListener()
 //        {

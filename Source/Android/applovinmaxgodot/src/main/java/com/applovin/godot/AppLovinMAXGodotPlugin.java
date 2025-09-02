@@ -268,16 +268,11 @@ public class AppLovinMAXGodotPlugin
 //                emitSignal( Signal.SDK_INITIALIZATION, get_sdk_configuration() );
 //            }
 //        } );
-        sdk = appLovinMAX.initializeSdkWithCompletionHandler( sdkKey, new AppLovinMAXGodotManager.Listener()
-        {
-            @Override
-            public void onSdkInitializationComplete(final AppLovinSdkConfiguration sdkConfiguration)
-            {
-                isdkInitialized = true;
+        sdk = appLovinMAX.initializeSdkWithCompletionHandler( sdkKey, sdkConfiguration -> {
+            isdkInitialized = true;
 
-                emitSignal( Signal.SDK_INITIALIZATION, get_sdk_configuration() );
-            }
-        } );
+            emitSignal( Signal.SDK_INITIALIZATION, get_sdk_configuration() );
+        });
 
 //        if ( !TextUtils.isEmpty( userIdToSet ) )
 //        {
