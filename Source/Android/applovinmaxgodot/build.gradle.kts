@@ -69,7 +69,7 @@ android {
 dependencies {
 
     implementation("com.android.support:appcompat-v7:28.0.0")
-    implementation("com.applovin:applovin-sdk:13.3.1")
+    implementation("com.applovin:applovin-sdk:13.4.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("com.android.support.test:runner:1.0.2")
     androidTestImplementation("com.android.support.test.espresso:espresso-core:3.0.2")
