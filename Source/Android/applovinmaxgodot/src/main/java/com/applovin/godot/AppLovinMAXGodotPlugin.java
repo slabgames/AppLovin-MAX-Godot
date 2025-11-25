@@ -100,6 +100,7 @@ public class AppLovinMAXGodotPlugin
         super.emitSignal( signalName, signalArgs );
     }
 
+    @NonNull
     @Override
     public Set<SignalInfo> getPluginSignals()
     {
@@ -253,9 +254,20 @@ public class AppLovinMAXGodotPlugin
     public void initialize(String sdkKey, Dictionary metadata, String[] adUnitIds)
     {
         // Create the initialization configuration
-        AppLovinSdkInitializationConfiguration initConfig = AppLovinSdkInitializationConfiguration.builder( sdkKey )
-                .setMediationProvider( AppLovinMediationProvider.MAX )
-                .build();
+        getCurrentActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                AppLovinSdkInitializationConfiguration initConfig = AppLovinSdkInitializationConfiguration.builder( sdkKey )
+                        .setMediationProvider( AppLovinMediationProvider.MAX )
+                        .build();
+                sdk = appLovinMAX.initializeSdkWithCompletionHandler( sdkKey, sdkConfiguration -> {
+                    isdkInitialized = true;
+
+                    emitSignal( Signal.SDK_INITIALIZATION, get_sdk_configuration() );
+                });
+            }
+        });
+
 
         // Initialize the SDK with the configuration
 //        AppLovinSdk.getInstance( getCurrentActivity() ).initialize( initConfig, new AppLovinSdk.SdkInitializationListener()
@@ -270,11 +282,7 @@ public class AppLovinMAXGodotPlugin
 //                emitSignal( Signal.SDK_INITIALIZATION, get_sdk_configuration() );
 //            }
 //        } );
-        sdk = appLovinMAX.initializeSdkWithCompletionHandler( sdkKey, sdkConfiguration -> {
-            isdkInitialized = true;
 
-            emitSignal( Signal.SDK_INITIALIZATION, get_sdk_configuration() );
-        });
 
 //        if ( !TextUtils.isEmpty( userIdToSet ) )
 //        {
@@ -342,25 +350,37 @@ public class AppLovinMAXGodotPlugin
     @UsedByGodot
     public void show_mediation_debugger()
     {
-        if ( sdk == null )
-        {
-            Log.d( "[" + AppLovinMAXGodotPlugin.TAG + "]", "Failed to show mediation debugger - please ensure the AppLovin MAX Godot Plugin has been initialized by calling 'MaxSdk.InitializeSdk();'!" );
-            return;
-        }
+        getCurrentActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if ( sdk == null )
+                {
+                    Log.d( "[" + AppLovinMAXGodotPlugin.TAG + "]", "Failed to show mediation debugger - please ensure the AppLovin MAX Godot Plugin has been initialized by calling 'MaxSdk.InitializeSdk();'!" );
+                    return;
+                }
 
-        sdk.showMediationDebugger();
+                sdk.showMediationDebugger();
+            }
+        });
+
     }
 
     @UsedByGodot
     public void show_creative_debugger()
     {
-        if ( sdk == null )
-        {
-            Log.d( "[" + AppLovinMAXGodotPlugin.TAG + "]", "Failed to show mediation debugger - please ensure the AppLovin MAX Godot Plugin has been initialized by calling 'MaxSdk.InitializeSdk();'!" );
-            return;
-        }
+        getCurrentActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if ( sdk == null )
+                {
+                    Log.d( "[" + AppLovinMAXGodotPlugin.TAG + "]", "Failed to show mediation debugger - please ensure the AppLovin MAX Godot Plugin has been initialized by calling 'MaxSdk.InitializeSdk();'!" );
+                    return;
+                }
 
-        sdk.showCreativeDebugger();
+                sdk.showCreativeDebugger();
+            }
+        });
+
     }
 
     @UsedByGodot
@@ -481,67 +501,134 @@ public class AppLovinMAXGodotPlugin
     @UsedByGodot
     public void create_banner_xy(String adUnitId, float x, float y)
     {
-        appLovinMAX.createBanner( adUnitId.trim(), x, y );
+        getCurrentActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                appLovinMAX.createBanner( adUnitId.trim(), x, y );
+            }
+        });
+
     }
 
     @UsedByGodot
     public void load_banner(String adUnitId)
     {
-        appLovinMAX.loadBanner( adUnitId.trim() );
+        getCurrentActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                appLovinMAX.loadBanner( adUnitId.trim() );
+            }
+        });
+
     }
 
     @UsedByGodot
     public void set_banner_placement(String adUnitId, String placement)
     {
-        appLovinMAX.setBannerPlacement( adUnitId.trim(), placement );
+        getCurrentActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                appLovinMAX.setBannerPlacement( adUnitId.trim(), placement );
+            }
+        });
+
     }
 
     @UsedByGodot
     public void start_banner_auto_refresh(String adUnitId)
     {
-        appLovinMAX.startBannerAutoRefresh( adUnitId.trim() );
+        getCurrentActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                appLovinMAX.startBannerAutoRefresh( adUnitId.trim() );
+            }
+        });
+
     }
 
     @UsedByGodot
     public void stop_banner_auto_refresh(String adUnitId)
     {
-        appLovinMAX.stopBannerAutoRefresh( adUnitId.trim() );
+        getCurrentActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                appLovinMAX.stopBannerAutoRefresh( adUnitId.trim() );
+            }
+        });
+
     }
 
     @UsedByGodot
     public void update_banner_position(String adUnitId, String bannerPosition)
     {
-        appLovinMAX.updateBannerPosition( adUnitId.trim(), bannerPosition );
+        getCurrentActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                appLovinMAX.updateBannerPosition( adUnitId.trim(), bannerPosition );
+            }
+        });
+
     }
 
     @UsedByGodot
     public void update_banner_position_xy(String adUnitId, float x, float y)
     {
-        appLovinMAX.updateBannerPosition( adUnitId.trim(), x, y );
+        getCurrentActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                appLovinMAX.updateBannerPosition( adUnitId.trim(), x, y );
+            }
+        });
+
     }
 
     @UsedByGodot
     public void set_banner_width(String adUnitId, float width)
     {
-        appLovinMAX.setBannerWidth( adUnitId.trim(), (int) width );
+        getCurrentActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                appLovinMAX.setBannerWidth( adUnitId.trim(), (int) width );
+            }
+        });
+
+
     }
 
     @UsedByGodot
     public void show_banner(String adUnitId)
     {
-        appLovinMAX.showBanner( adUnitId.trim() );
+        getCurrentActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                appLovinMAX.showBanner( adUnitId.trim() );
+            }
+        });
+
     }
 
     @UsedByGodot
     public void destroy_banner(String adUnitId)
     {
-        appLovinMAX.destroyBanner( adUnitId.trim() );
+
+        getCurrentActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                appLovinMAX.destroyBanner( adUnitId.trim() );
+            }
+        });
     }
 
     @UsedByGodot
     public void hide_banner(String adUnitId)
     {
-        appLovinMAX.hideBanner( adUnitId.trim() );
+        getCurrentActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                appLovinMAX.hideBanner( adUnitId.trim() );
+            }
+        });
+
     }
 
     @UsedByGodot
@@ -581,7 +668,13 @@ public class AppLovinMAXGodotPlugin
     @UsedByGodot
     public void create_mrec(String adUnitId, String mrecPosition)
     {
-        appLovinMAX.createMRec( adUnitId.trim(), mrecPosition );
+        getCurrentActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                appLovinMAX.createMRec( adUnitId.trim(), mrecPosition );
+            }
+        });
+
     }
 
     @UsedByGodot
@@ -593,7 +686,13 @@ public class AppLovinMAXGodotPlugin
     @UsedByGodot
     public void load_mrec(String adUnitId)
     {
-        appLovinMAX.loadMRec( adUnitId.trim() );
+        getCurrentActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                appLovinMAX.loadMRec( adUnitId.trim() );
+            }
+        });
+
     }
 
     @UsedByGodot
@@ -629,7 +728,13 @@ public class AppLovinMAXGodotPlugin
     @UsedByGodot
     public void show_mrec(String adUnitId)
     {
-        appLovinMAX.showMRec( adUnitId.trim() );
+        getCurrentActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                appLovinMAX.showMRec( adUnitId.trim() );
+            }
+        });
+
     }
 
     @UsedByGodot
@@ -669,19 +774,32 @@ public class AppLovinMAXGodotPlugin
     @UsedByGodot
     public void load_interstitial(String adUnitId)
     {
-        appLovinMAX.loadInterstitial( adUnitId.trim() );
+        getCurrentActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                appLovinMAX.loadInterstitial( adUnitId.trim() );
+            }
+        });
+
     }
 
     @UsedByGodot
     public boolean is_interstitial_ready(String adUnitId)
     {
+
         return appLovinMAX.isInterstitialReady( adUnitId.trim() );
     }
 
     @UsedByGodot
     public void show_interstitial(String adUnitId, String placement, String customData)
     {
-        appLovinMAX.showInterstitial( adUnitId.trim(), placement, customData );
+        getCurrentActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                appLovinMAX.showInterstitial( adUnitId.trim(), placement, customData );
+            }
+        });
+
     }
 
     @UsedByGodot
@@ -737,7 +855,13 @@ public class AppLovinMAXGodotPlugin
     @UsedByGodot
     public void load_rewarded_ad(String adUnitId)
     {
-        appLovinMAX.loadRewardedAd( adUnitId.trim() );
+        getCurrentActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                appLovinMAX.loadRewardedAd( adUnitId.trim() );
+            }
+        });
+
     }
 
     @UsedByGodot
@@ -749,7 +873,13 @@ public class AppLovinMAXGodotPlugin
     @UsedByGodot
     public void show_rewarded_ad(String adUnitId, String placement, String customData)
     {
-        appLovinMAX.showRewardedAd( adUnitId.trim(), placement, customData );
+        getCurrentActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                appLovinMAX.showRewardedAd( adUnitId.trim(), placement, customData );
+            }
+        });
+
     }
 
     @UsedByGodot
@@ -977,13 +1107,18 @@ public class AppLovinMAXGodotPlugin
     {
         if ( sdk != null )
         {
-            sdk.getSettings().setCreativeDebuggerEnabled( enabled );
+            getActivity().runOnUiThread(() -> {
+                sdk.getSettings().setCreativeDebuggerEnabled( enabled );
+            });
+
             creativeDebuggerEnabled = null;
         }
         else
         {
             creativeDebuggerEnabled = enabled;
         }
+
+
     }
 
     @UsedByGodot

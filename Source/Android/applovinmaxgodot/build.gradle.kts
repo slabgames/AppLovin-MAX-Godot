@@ -2,14 +2,12 @@ import org.gradle.internal.impldep.bsh.commands.dir
 
 android {
     namespace = "com.applovin.godot"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
-//        applicationId = "com.slabgames.applovinmaxgodot"
         minSdk = 24
-        targetSdk = 34
-//        versionCode = 1
-//        versionName = "1.0"
+        lint.targetSdk = 35
+
 
         testInstrumentationRunner = "android.support.test.runner.AndroidJUnitRunner"
 
@@ -69,7 +67,7 @@ android {
 dependencies {
 
     implementation("com.android.support:appcompat-v7:28.0.0")
-    implementation("com.applovin:applovin-sdk:13.4.0")
+    implementation("com.applovin:applovin-sdk:13.5.1")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("com.android.support.test:runner:1.0.2")
     androidTestImplementation("com.android.support.test.espresso:espresso-core:3.0.2")
